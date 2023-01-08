@@ -9,12 +9,28 @@
 
 const int MAX_DISPLAY = 30;
 
-void ymd(int ymd, int *y, int *m, int *d) {
-
-    *y = ymd / 10000;
+struct tm ymdtodate(int ymd) {
+    int y = ymd / 10000;
     int rm = ymd % 10000;
-    *m = rm / 100;
-    *d = rm % 100;
+    int m = rm / 100;
+    int d = rm % 100;
+    struct tm result = (struct tm){ 
+        .tm_year = y - 1900,
+        .tm_mon  = m - 1,
+        .tm_mday = d };
+    return result; 
+}
+
+void print_date_ymd(struct tm date) {
+    char display[MAX_DISPLAY];
+    strftime(display, MAX_DISPLAY, "%Y%m%d", &date);
+    printf("%s", display);
+}
+
+int datetoymd(struct tm date) {
+    char display[MAX_DISPLAY];
+    strftime(display, MAX_DISPLAY, "%Y%m%d", &date);
+    return atoi(display);
 }
 
 int main(int argc, char *argv[]) {
@@ -24,14 +40,10 @@ int main(int argc, char *argv[]) {
     struct tm date_end = *date_now;
     date_start.tm_year-= 2;
     date_end.tm_year+= 2;
-    char display[MAX_DISPLAY];
-    strftime(display, MAX_DISPLAY, "%Y%m%d", &date_start);
-    int start_ymd = atoi(display);
-    strftime(display, MAX_DISPLAY, "%Y%m%d", &date_end);
-    int end_ymd = atoi(display);
-
-    time_t start = mktime(&date_start);
-    time_t end   = mktime(&date_end);
+    int start_ymd = datetoymd(date_start);
+    int end_ymd   = datetoymd(date_end);
+    time_t start  = mktime(&date_start);
+    time_t end    = mktime(&date_end);
     char c;
     while((c = getopt(argc, argv, "s:e:h")) != -1) {
         switch(c) {
@@ -41,18 +53,8 @@ int main(int argc, char *argv[]) {
             case 'e': end_ymd = atoi(optarg); break;
         }
     }
-    int start_year;
-    int start_month;
-    int start_day;
-    ymd(start_ymd, &start_year, &start_month, &start_day);
-    int end_year;
-    int end_month;
-    int end_day;
-    ymd(end_ymd, &end_year, &end_month, &end_day);
-    date_start = (struct tm) { .tm_year = start_year-1900, .tm_mon = start_month, .tm_mday = start_day };
-    strftime(display, MAX_DISPLAY, "%Y%m%d", &date_start);
-    printf("%s\n", display);
-    date_end = (struct tm) { .tm_year = end_year-1900, .tm_mon = end_month, .tm_mday = end_day };
+    date_start = ymdtodate(start_ymd);
+    date_end   = ymdtodate(end_ymd);
     start = mktime(&date_start);
     end = mktime(&date_end);
     assert(end > start);
@@ -61,8 +63,8 @@ int main(int argc, char *argv[]) {
     while(true) {
         time_t t = start + rand() % range;
         struct tm* day = localtime(&t);
-        strftime(display, MAX_DISPLAY, "%Y%m%d", day);
-        printf("%s\n", display);
+        print_date_ymd(*day);
+        printf("\n");
     }
 }
 
