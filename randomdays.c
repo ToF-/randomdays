@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     char c;
     while((c = getopt(argc, argv, "s:e:h")) != -1) {
         switch(c) {
-            case 'h': printf("randomkeys -s : start <YYYYmmdd>\n\t   -e : end <YYYYmmdd>\n\t");
+            case 'h': printf("randomkeys -s <YYYYmmdd> -e <YYYYmmdd>\n");
                       exit(0);
             case 's': start_ymd = atoi(optarg); break;
             case 'e': end_ymd = atoi(optarg); break;
